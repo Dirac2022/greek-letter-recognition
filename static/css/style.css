@@ -1,0 +1,64 @@
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 30px;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+h1 {
+    color: #333;
+}
+
+#drawingCanvas {
+    border: 3px solid #333;
+    background-color: #fff;
+    cursor: crosshair;
+    margin-top: 15px;
+    touch-action: none; /* Evita el scroll en móviles mientras se dibuja */
+}
+
+.controls {
+    margin-bottom: 15px;
+    margin-top: 10px;
+}
+
+.controls button {
+    padding: 12px 20px;
+    font-size: 16px;
+    margin: 0 8px;
+    cursor: pointer;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.controls button:hover {
+    background-color: #0056b3;
+}
+
+.controls button:disabled {
+    background-color: #aaa;
+    cursor: not-allowed;
+}
+
+#predictionResult {
+    margin-top: 25px;
+    font-size: 20px;
+    min-height: 30px; /* Para evitar saltos de layout */
+}
+
+#predictionResult span {
+    font-weight: bold;
+    color: #28a745;
+}
+
+#loadingIndicator {
+    margin-top: 15px;
+    font-style: italic;
+    color: #555;
+}

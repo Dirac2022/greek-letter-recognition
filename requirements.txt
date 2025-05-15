@@ -1,0 +1,6 @@
+Flask
+Pillow
+numpy
+gunicorn
+
+# IR AGREGANDO
