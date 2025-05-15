@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reconocimiento de Dígitos</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <h1>Dibuja un dígito (0-9)</h1>
+    <div class="controls">
+        <button id="clearBtn">Eliminar</button>
+        <button id="sendBtn">Enviar Dibujo</button>
+    </div>
+    <canvas id="drawingCanvas" width="280" height="280"></canvas>
+    <div id="predictionResult">
+        <p>Predicción: <span id="result">-</span></p>
+    </div>
+    <div id="loadingIndicator" style="display: none;">
+        <p>Procesando y esperando predicción...</p>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
