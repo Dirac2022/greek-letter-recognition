@@ -1,64 +1,64 @@
 from flask import Flask, render_template, request, jsonify
 import base64
 import io
-from PIL import Image 
+from PIL import Image
 import numpy as np
 import re
-import time
+import tensorflow as tf
 
-# (Opcional) Cargar tu modelo de Machine Learning aquí (PYTORCH O TF, cualquiera )
-# import tensorflow as tf
-# try:
-#     model = tf.keras.models.load_model('models/tu_modelo_de_digitos.h5') # Cambia la ruta
-#     print("Modelo cargado exitosamente.")
-# except Exception as e:
-#     print(f"ADVERTENCIA: No se pudo cargar el modelo. Se usarán predicciones simuladas. Error: {e}")
-#     model = None
+# Lista de letras según los índices que predice el modelo
+classes = [
+    'A','B','C','D','E','F','G','H','I','J','K','L','M',
+    'N','Ñ','O','P','Q','R','S','T','U','V','W','X','Y','Z',
+    'a','b','c','d','e','f','g','h','i','j','k','l','m',
+    'n','ñ','o','p','q','r','s','t','u','v','w','x','y','z'
+]
+
+# Carga del modelo .h5
+try:
+    model = tf.keras.models.load_model('models/modelo_letras3.h5')
+    print("✅ Modelo cargado exitosamente.")
+except Exception as e:
+    print(f"⚠️ ADVERTENCIA: No se pudo cargar el modelo. Se usarán predicciones simuladas. Error: {e}")
+    model = None
 
 app = Flask(__name__)
 
 def preprocess_image_for_model(image_data_url, target_size=(28, 28)):
     """
-    Preprocesa la imagen del canvas para que coincida con la entrada del modelo.
-    Esto es un EJEMPLO y DEBE SER AJUSTADO a los requerimientos de TU MODELO.
+    Preprocesa la imagen de DataURL para que coincida con la entrada del modelo.
+    Convierte a RGBA, fondo blanco, escala de grises, resize, normaliza y añade batch + canal.
     """
     try:
-        # Quita el encabezado 'data:image/png;base64,'
-        image_data = re.sub('^data:image/.+;base64,', '', image_data_url)
+        # Decodifica la imagen base64
+        image_data = re.sub(r'^data:image/.+;base64,', '', image_data_url)
         img_bytes = base64.b64decode(image_data)
-
         img = Image.open(io.BytesIO(img_bytes))
 
+        # Asegura canal alfa
         if img.mode != 'RGBA':
             img = img.convert('RGBA')
 
-        background = Image.new('RGBA', img.size, (255, 255, 255)) 
-        img_on_white_bg = Image.alpha_composite(background, img)
+        # Fondo blanco
+        background = Image.new('RGBA', img.size, (255, 255, 255))
+        img_on_white = Image.alpha_composite(background, img)
+        img_gray = img_on_white.convert('L')
 
-        img_gray = img_on_white_bg.convert('L')
+        # Redimensiona al tamaño esperado
+        img_resized = img_gray.resize(target_size, Image.Resampling.LANCZOS)
 
-        img_resized = img_gray.resize(target_size, Image.Resampling.LANCZOS) 
+        # Normaliza a [0,1]
+        arr = np.array(img_resized) / 255.0
 
-        # Convertir a array numpy y normalizar (0-1 o -1-1, según tu modelo)
-        img_array = np.array(img_resized)
-        img_array = img_array / 255.0 # Normalizar a [0, 1]
+        # Añade dimensiones: (1, H, W, 1)
+        arr = np.expand_dims(arr, axis=0)
+        arr = np.expand_dims(arr, axis=-1)
 
-        # 5. (IMPORTANTE) Invertir colores si es necesario:
-        #    Si dibujas negro sobre blanco (canvas) y tu modelo fue entrenado con
-        #    dígitos blancos sobre fondo negro (típico en MNIST), necesitas invertir.
-        #    img_array = 1.0 - img_array
-
-        # 6. Añadir dimensiones de batch y canal si el modelo lo espera
-        #    (ej. (1, 28, 28, 1) para TensorFlow/Keras con formato channels_last)
-        img_array = np.expand_dims(img_array, axis=0)  # Dimensión de batch
-        img_array = np.expand_dims(img_array, axis=-1) # Dimensión de canal (escala de grises)
-
-        return img_array
+        return arr
 
     except Exception as e:
         print(f"Error preprocesando la imagen: {e}")
         return None
-
 
 @app.route('/')
 def index():
@@ -68,36 +68,28 @@ def index():
 def predict():
     try:
         data = request.get_json()
-        image_data_url = data['image'] # Esta es la imagen en formato DataURL
+        image_data_url = data.get('image')
+        processed = preprocess_image_for_model(image_data_url)
 
-        # --- SIMULACIÓN DE PREDICCIÓN ---
-        # Reemplaza esta sección con el preprocesamiento y la predicción de tu modelo real.
-        print("Recibida imagen para predicción (simulada).")
-        time.sleep(1.5) # Simular el tiempo que tomaría una predicción real
+        if processed is None:
+            return jsonify({'error': 'Error al procesar la imagen'}), 400
 
-        # # --- EJEMPLO DE USO DE MODELO REAL (descomentar y adaptar si tienes uno) ---
-        # processed_image = preprocess_image_for_model(image_data_url)
-        # if processed_image is not None and model is not None:
-        #     prediction = model.predict(processed_image)
-        #     predicted_digit = str(np.argmax(prediction[0]))
-        #     print(f"Predicción del modelo: {predicted_digit}")
-        # elif model is None:
-        #     predicted_digit = str(np.random.randint(0, 10)) + " (simulado, modelo no cargado)"
-        #     print(f"Predicción: {predicted_digit}")
-        # else: # Error en preprocesamiento
-        #     return jsonify({'error': 'Error al procesar la imagen'}), 400
-        # # --- Fin Ejemplo Modelo Real ---
+        if model is not None:
+            # Predicción real
+            preds = model.predict(processed)          # shape (1, n_clases)
+            pred_idx = int(np.argmax(preds[0]))       # índice numérico
+            predicted = classes[pred_idx]             # letra correspondiente
+            print(f"✅ Predicción del modelo: {predicted}")
+        else:
+            # Simulación de respaldo
+            predicted = "(simulado)"
+            print(f"🛈 Predicción simulada: {predicted}")
 
-        predicted_digit = str(np.random.randint(0, 10)) + " (S)" 
-        print(f"Predicción simulada: {predicted_digit}")
-        return jsonify({'prediction': predicted_digit})
+        return jsonify({'prediction': predicted})
 
     except Exception as e:
         print(f"Error en el endpoint /predict: {e}")
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    # Railway usará Gunicorn, pero para desarrollo local esto funciona.
-    # El puerto será asignado por Railway, pero 5000 es un default común.
-    # Escuchar en 0.0.0.0 hace que sea accesible desde fuera del contenedor.
     app.run(host='0.0.0.0', port=5000, debug=True)

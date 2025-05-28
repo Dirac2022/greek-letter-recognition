@@ -1,6 +1,5 @@
-Flask
-Pillow
-numpy
+Flask>=2.3.0
+Pillow>=10.0.0
+numpy==2.1.3
+tensorflow-cpu==2.19.0
 gunicorn
-
-# IR AGREGANDO

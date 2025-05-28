@@ -1,0 +1,26 @@
+# Entorno virtual
+venv/
+venv311/
+
+# Archivos de Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Archivos temporales
+*.log
+*.tmp
+*.swp
+
+# Modelos
+models/*.h5
+models/*.npy
+models/*.keras
+
+# Archivos generados por el sistema
+.DS_Store
+Thumbs.db
+
+# Archivos de entorno
+.env
