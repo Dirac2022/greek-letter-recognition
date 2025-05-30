@@ -18,7 +18,7 @@
         <p class="page-description">Dibuja la letra que se muestra a continuación</p>
         
         <div class="letter-to-draw">
-            <span class="target-letter">{{ target_letter }}</span>
+            <img id="greekLetterImage" class="greek-letter-image" src="" alt="Letra griega">
         </div>
 
         <div class="canvas-container">
@@ -39,6 +39,26 @@
         let isDrawing = false;
         let lastX = 0;
         let lastY = 0;
+
+        // Array con las letras griegas disponibles
+        const greekLetters = ['alpha', 'epsilon', 'kappa', 'nu', 'rho', 'upsilon'];
+
+        // Función para obtener una letra griega aleatoria
+        function getRandomGreekLetter() {
+            const randomIndex = Math.floor(Math.random() * greekLetters.length);
+            return greekLetters[randomIndex];
+        }
+
+        // Función para mostrar una letra griega aleatoria
+        function showRandomGreekLetter() {
+            const randomLetter = getRandomGreekLetter();
+            greekLetterImage.src = `/static/${randomLetter}.png`;
+            greekLetterImage.alt = `Letra griega ${randomLetter}`;
+            console.log(`Mostrando letra: ${randomLetter}`);
+        }
+
+        // Mostrar una letra griega al cargar la página
+        showRandomGreekLetter();
 
         // Ajustar el tamaño del canvas al contenedor
         function resizeCanvas() {
@@ -122,6 +142,7 @@
             const imageData = canvas.toDataURL('image/png');
             console.log('Imagen guardada');
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            showRandomGreekLetter();
         });
     </script>
 </body>
