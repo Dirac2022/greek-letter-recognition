@@ -1,64 +1,317 @@
+/* Variables globales */
+:root {
+    --dark-bg: #0f172a;
+    --dark-secondary: #1e293b;
+    --blue-active: #3b82f6;
+    --text-light: #ffffff;
+    --text-muted: #94a3b8;
+    --nav-height: 3.5rem;
+}
+
+/* Reset y estilos base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    position: fixed;
+}
+
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Inter', sans-serif;
+    background-color: var(--dark-bg);
+    color: var(--text-light);
+    display: flex;
+    flex-direction: column;
+}
+
+/* Navegación */
+.nav {
+    background-color: var(--dark-secondary);
+    padding: 0.75rem;
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    height: var(--nav-height);
+    min-height: var(--nav-height);
+}
+
+.nav a {
+    color: var(--text-light);
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    transition: background-color 0.3s;
+    font-size: clamp(0.875rem, 2vw, 1rem);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 120px;
+}
+
+.nav a.active {
+    background-color: var(--blue-active);
+}
+
+/* Contenedor principal */
+.container {
+    flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-top: 30px;
-    background-color: #f4f4f4;
-    color: #333;
+    justify-content: center;
+    padding: clamp(0.5rem, 2vw, 1rem);
+    gap: clamp(0.5rem, 2vw, 1rem);
+    height: calc(100vh - var(--nav-height));
+    overflow: hidden;
+}
+
+/* Títulos y descripciones */
+.page-title {
+    font-size: clamp(1.25rem, 4vw, 1.5rem);
+    font-weight: 700;
+    color: var(--text-light);
+    margin-bottom: 0.25rem;
+    text-align: center;
+}
+
+.page-description {
+    font-size: clamp(0.75rem, 2vw, 0.9rem);
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+    text-align: center;
+    max-width: min(300px, 90vw);
+}
+
+/* Letra a dibujar */
+.letter-to-draw {
+    background-color: var(--dark-secondary);
+    padding: 1rem 2rem;
+    border-radius: 0.5rem;
+    margin-bottom: 0.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.target-letter {
+    font-size: clamp(2rem, 8vw, 3rem);
+    font-weight: 700;
+    color: var(--blue-active);
+    text-transform: uppercase;
+}
+
+/* Canvas */
+.canvas-container {
+    background-color: var(--dark-secondary);
+    padding: clamp(0.5rem, 2vw, 0.75rem);
+    border-radius: 0.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+canvas {
+    background-color: white;
+    border-radius: 0.25rem;
+    width: min(240px, 80vw);
+    height: min(240px, 80vw);
+    max-width: 100%;
+    max-height: 100%;
+}
+
+/* Controles */
+.controls {
+    display: flex;
+    gap: clamp(0.5rem, 2vw, 0.75rem);
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    max-width: min(400px, 90vw);
+}
+
+.btn {
+    padding: clamp(0.4rem, 2vw, 0.5rem) clamp(0.75rem, 3vw, 1rem);
+    border: none;
+    border-radius: 0.5rem;
+    font-size: clamp(0.8rem, 2vw, 0.9rem);
+    cursor: pointer;
+    transition: opacity 0.3s;
+    white-space: nowrap;
+    flex: 1;
+    min-width: min(120px, 30vw);
+    max-width: 200px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    height: 40px;
+}
+
+.btn:hover {
+    opacity: 0.9;
+}
+
+.btn-primary {
+    background-color: var(--blue-active);
+    color: var(--text-light);
+}
+
+.btn-secondary {
+    background-color: var(--dark-secondary);
+    color: var(--text-light);
+}
+
+/* Input de texto */
+.text-input {
+    background-color: var(--dark-secondary);
+    border: 1px solid var(--text-muted);
+    color: var(--text-light);
+    padding: clamp(0.4rem, 2vw, 0.5rem);
+    border-radius: 0.5rem;
+    font-size: clamp(0.8rem, 2vw, 0.9rem);
+    width: min(120px, 30vw);
+    text-align: center;
+}
+
+.text-input:focus {
+    outline: none;
+    border-color: var(--blue-active);
+}
+
+/* Área de predicción */
+.prediction-area {
+    background-color: var(--dark-secondary);
+    padding: clamp(0.5rem, 2vw, 0.75rem) clamp(1rem, 4vw, 1.5rem);
+    border-radius: 0.5rem;
+    font-size: clamp(0.9rem, 2vw, 1rem);
+    margin-top: 0.5rem;
+    text-align: center;
+    width: min(300px, 90vw);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.prediction-area span {
+    color: var(--blue-active);
+    font-weight: bold;
+    margin-left: 0.5rem;
+}
+
+/* Media queries para ajustes específicos */
+@media (max-height: 600px) {
+    .page-title {
+        margin-bottom: 0.1rem;
+    }
+    
+    .page-description {
+        margin-bottom: 0.25rem;
+    }
+    
+    .letter-to-draw {
+        padding: 0.75rem 1.5rem;
+        margin-bottom: 0.25rem;
+    }
+    
+    .canvas-container {
+        padding: 0.5rem;
+    }
+    
+    canvas {
+        width: min(200px, 70vw);
+        height: min(200px, 70vw);
+    }
+}
+
+@media (max-width: 360px) {
+    .nav {
+        padding: 0.5rem;
+    }
+    
+    .nav a {
+        padding: 0.4rem 0.75rem;
+        min-width: 100px;
+    }
+    
+    .controls {
+        gap: 0.5rem;
+    }
+    
+    .btn {
+        padding: 0.4rem 0.75rem;
+        height: 36px;
+    }
 }
 
 h1 {
-    color: #333;
+    font-size: 26px;
+    font-weight: 700;
+    margin-bottom: 25px;
+    color: #f8fafc;
 }
 
 #drawingCanvas {
-    border: 3px solid #333;
-    background-color: #fff;
+    border: 2px dashed #475569;
+    border-radius: 12px;
+    background-color: #f8fafc; /* canvas claro */
+    box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.08);
     cursor: crosshair;
-    margin-top: 15px;
-    touch-action: none; /* Evita el scroll en móviles mientras se dibuja */
+    touch-action: none;
 }
 
-.controls {
-    margin-bottom: 15px;
-    margin-top: 10px;
-}
-
-.controls button {
-    padding: 12px 20px;
-    font-size: 16px;
-    margin: 0 8px;
-    cursor: pointer;
-    background-color: #007bff;
+#clearBtn {
+    background-color: #64748b;
     color: white;
-    border: none;
-    border-radius: 5px;
-    transition: background-color 0.3s ease;
 }
 
-.controls button:hover {
-    background-color: #0056b3;
+#clearBtn:hover {
+    background-color: #475569;
+    transform: scale(1.03);
+}
+
+#sendBtn {
+    background-color: #3b82f6;
+    color: white;
+}
+
+#sendBtn:hover {
+    background-color: #2563eb;
+    transform: scale(1.03);
 }
 
 .controls button:disabled {
-    background-color: #aaa;
+    background-color: #475569;
     cursor: not-allowed;
 }
 
 #predictionResult {
-    margin-top: 25px;
-    font-size: 20px;
-    min-height: 30px; /* Para evitar saltos de layout */
+    margin-top: 20px;
+    background-color: #0f172a;
+    color: #22c55e;
+    padding: 12px;
+    border-radius: 10px;
+    font-size: 18px;
+    font-weight: 600;
+    border: 1px solid #334155;
+    box-shadow: inset 0 0 5px rgba(255, 255, 255, 0.03);
 }
 
 #predictionResult span {
     font-weight: bold;
-    color: #28a745;
+    font-size: 22px;
 }
 
 #loadingIndicator {
     margin-top: 15px;
     font-style: italic;
-    color: #555;
+    color: #94a3b8;
+    font-size: 14px;
 }
+  
