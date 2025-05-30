@@ -13,7 +13,14 @@
         <a href="/prediccion" class="active">Predecir 🔍</a>
     </nav>
 
+
+
     <main class="container">
+        <img 
+            src="{{ url_for('static', filename='letras.png') }}" 
+            alt="Ejemplo de letras para dibujar"
+            class="header-image"
+        >
         <h1 class="page-title">Predicción de Letras</h1>
         <p class="page-description">Dibuja una letra y el modelo intentará predecirla</p>
 

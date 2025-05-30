@@ -7,11 +7,11 @@ import re
 import tensorflow as tf
 
 # Lista de letras según los índices que predice el modelo
-classes = ['A', 'E', 'K', 'R', 'U', 'a', 'e', 'k', 'r', 'u']
+classes = ['alpha', 'epsilon', 'kappa', 'nu', 'rho', 'upsilon']
 
 # Carga del modelo .h5
 try:
-    model = tf.keras.models.load_model('models/modelo_letras.h5')
+    model = tf.keras.models.load_model('models/modelo_letras_g.h5')
     print("✅ Modelo cargado exitosamente.")
 except Exception as e:
     print(f"⚠️ ADVERTENCIA: No se pudo cargar el modelo. Se usarán predicciones simuladas. Error: {e}")
