@@ -4,7 +4,7 @@ Integrantes:
 - Jared Orihuela
 - Mitchel Soto
 - Yoel Mantari
-- Everson 
+- Ebert Limache
 
 
 # Reconocimiento de Letras Manuscritas con Flask y TensorFlow
