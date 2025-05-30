@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entrenamiento - Reconocimiento de Letras</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="nav">
+        <a href="/entrenamiento" class="active">Entrenar ✏️</a>
+        <a href="/prediccion">Predecir 🔍</a>
+    </nav>
+
+    <main class="container">
+        <h1 class="page-title">Entrenamiento de Letras</h1>
+        <p class="page-description">Dibuja la letra que se muestra a continuación</p>
+        
+        <div class="letter-to-draw">
+            <span class="target-letter">{{ target_letter }}</span>
+        </div>
+
+        <div class="canvas-container">
+            <canvas id="trainingCanvas" width="280" height="280"></canvas>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-primary" id="saveBtn">Enviar</button>
+            <button class="btn btn-secondary" id="clearTrainingBtn">Limpiar</button>
+        </div>
+    </main>
+</body>
+</html> 
