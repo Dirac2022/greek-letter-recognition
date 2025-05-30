@@ -14,8 +14,8 @@
     </nav>
 
     <main class="container">
-        <h1 class="page-title">Reconocimiento de Letras</h1>
-        <p class="page-description">Dibuja una letra y el modelo intentará predecir cuál es</p>
+        <h1 class="page-title">Predicción de Letras</h1>
+        <p class="page-description">Dibuja una letra y el modelo intentará predecirla</p>
 
         <div class="canvas-container">
             <canvas id="predictionCanvas" width="280" height="280"></canvas>
@@ -26,9 +26,115 @@
             <button class="btn btn-secondary" id="clearPredictionBtn">Limpiar</button>
         </div>
 
-        <div class="prediction-area">
-            Predicción: <span>-</span>
-        </div>
+        <div id="predictionResult" class="prediction-result"></div>
     </main>
+
+    <script>
+        const canvas = document.getElementById('predictionCanvas');
+        const ctx = canvas.getContext('2d');
+        const clearBtn = document.getElementById('clearPredictionBtn');
+        const predictBtn = document.getElementById('predictBtn');
+        const resultDiv = document.getElementById('predictionResult');
+        let isDrawing = false;
+        let lastX = 0;
+        let lastY = 0;
+
+        // Ajustar el tamaño del canvas al contenedor
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            const containerWidth = container.clientWidth;
+            const containerHeight = container.clientHeight;
+            const size = Math.min(containerWidth, containerHeight) - 20; // 20px de padding
+            
+            canvas.style.width = `${size}px`;
+            canvas.style.height = `${size}px`;
+        }
+
+        // Llamar a resizeCanvas cuando se carga la página y cuando cambia el tamaño de la ventana
+        window.addEventListener('load', resizeCanvas);
+        window.addEventListener('resize', resizeCanvas);
+
+        // Configuración del canvas
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 20;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+
+        // Eventos del mouse
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseout', stopDrawing);
+
+        // Eventos táctiles
+        canvas.addEventListener('touchstart', handleTouch);
+        canvas.addEventListener('touchmove', handleTouch);
+        canvas.addEventListener('touchend', stopDrawing);
+
+        function startDrawing(e) {
+            isDrawing = true;
+            [lastX, lastY] = getCoordinates(e);
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            const [currentX, currentY] = getCoordinates(e);
+            
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+            ctx.lineTo(currentX, currentY);
+            ctx.stroke();
+            
+            [lastX, lastY] = [currentX, currentY];
+        }
+
+        function stopDrawing() {
+            isDrawing = false;
+        }
+
+        function handleTouch(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const mouseEvent = new MouseEvent(e.type === 'touchstart' ? 'mousedown' : 'mousemove', {
+                clientX: touch.clientX,
+                clientY: touch.clientY
+            });
+            canvas.dispatchEvent(mouseEvent);
+        }
+
+        function getCoordinates(e) {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            
+            return [
+                (e.clientX - rect.left) * scaleX,
+                (e.clientY - rect.top) * scaleY
+            ];
+        }
+
+        clearBtn.addEventListener('click', () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            resultDiv.textContent = '';
+        });
+
+        predictBtn.addEventListener('click', async () => {
+            const imageData = canvas.toDataURL('image/png');
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ image: imageData })
+                });
+                const data = await response.json();
+                resultDiv.textContent = `Predicción: ${data.prediction}`;
+            } catch (error) {
+                console.error('Error:', error);
+                resultDiv.textContent = 'Error al realizar la predicción';
+            }
+        });
+    </script>
 </body>
 </html> 

@@ -30,5 +30,99 @@
             <button class="btn btn-secondary" id="clearTrainingBtn">Limpiar</button>
         </div>
     </main>
+
+    <script>
+        const canvas = document.getElementById('trainingCanvas');
+        const ctx = canvas.getContext('2d');
+        const clearBtn = document.getElementById('clearTrainingBtn');
+        const saveBtn = document.getElementById('saveBtn');
+        let isDrawing = false;
+        let lastX = 0;
+        let lastY = 0;
+
+        // Ajustar el tamaño del canvas al contenedor
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            const containerWidth = container.clientWidth;
+            const containerHeight = container.clientHeight;
+            const size = Math.min(containerWidth, containerHeight) - 20; // 20px de padding
+            
+            canvas.style.width = `${size}px`;
+            canvas.style.height = `${size}px`;
+        }
+
+        // Llamar a resizeCanvas cuando se carga la página y cuando cambia el tamaño de la ventana
+        window.addEventListener('load', resizeCanvas);
+        window.addEventListener('resize', resizeCanvas);
+
+        // Configuración del canvas
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 20;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+
+        // Eventos del mouse
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseout', stopDrawing);
+
+        // Eventos táctiles
+        canvas.addEventListener('touchstart', handleTouch);
+        canvas.addEventListener('touchmove', handleTouch);
+        canvas.addEventListener('touchend', stopDrawing);
+
+        function startDrawing(e) {
+            isDrawing = true;
+            [lastX, lastY] = getCoordinates(e);
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            const [currentX, currentY] = getCoordinates(e);
+            
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+            ctx.lineTo(currentX, currentY);
+            ctx.stroke();
+            
+            [lastX, lastY] = [currentX, currentY];
+        }
+
+        function stopDrawing() {
+            isDrawing = false;
+        }
+
+        function handleTouch(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const mouseEvent = new MouseEvent(e.type === 'touchstart' ? 'mousedown' : 'mousemove', {
+                clientX: touch.clientX,
+                clientY: touch.clientY
+            });
+            canvas.dispatchEvent(mouseEvent);
+        }
+
+        function getCoordinates(e) {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            
+            return [
+                (e.clientX - rect.left) * scaleX,
+                (e.clientY - rect.top) * scaleY
+            ];
+        }
+
+        clearBtn.addEventListener('click', () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        });
+
+        saveBtn.addEventListener('click', async () => {
+            const imageData = canvas.toDataURL('image/png');
+            console.log('Imagen guardada');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        });
+    </script>
 </body>
 </html> 

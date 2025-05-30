@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, redirect, url_for
 import base64
 import io
 from PIL import Image
@@ -7,16 +7,11 @@ import re
 import tensorflow as tf
 
 # Lista de letras según los índices que predice el modelo
-classes = [
-    'A','B','C','D','E','F','G','H','I','J','K','L','M',
-    'N','Ñ','O','P','Q','R','S','T','U','V','W','X','Y','Z',
-    'a','b','c','d','e','f','g','h','i','j','k','l','m',
-    'n','ñ','o','p','q','r','s','t','u','v','w','x','y','z'
-]
+classes = ['A', 'E', 'K', 'R', 'U', 'a', 'e', 'k', 'r', 'u']
 
 # Carga del modelo .h5
 try:
-    model = tf.keras.models.load_model('models/modelo_letras3.h5')
+    model = tf.keras.models.load_model('models/modelo_letras.h5')
     print("✅ Modelo cargado exitosamente.")
 except Exception as e:
     print(f"⚠️ ADVERTENCIA: No se pudo cargar el modelo. Se usarán predicciones simuladas. Error: {e}")
@@ -62,7 +57,15 @@ def preprocess_image_for_model(image_data_url, target_size=(28, 28)):
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return redirect(url_for('entrenamiento'))
+
+@app.route('/entrenamiento')
+def entrenamiento():
+    return render_template('entrenamiento.html')
+
+@app.route('/prediccion')
+def prediccion():
+    return render_template('prediccion.html')
 
 @app.route('/predict', methods=['POST'])
 def predict():
