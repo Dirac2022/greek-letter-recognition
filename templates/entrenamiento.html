@@ -6,6 +6,23 @@
     <title>Entrenamiento - Reconocimiento de Letras</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Simple loading indicator style */
+        .loading-spinner {
+            border: 4px solid #f3f3f3; /* Light grey */
+            border-top: 4px solid #3498db; /* Blue */
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: none; /* Hidden by default */
+            margin-left: 10px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 <body>
     <nav class="nav">
@@ -16,7 +33,7 @@
     <main class="container">
         <h1 class="page-title">Entrenamiento de Letras</h1>
         <p class="page-description">Dibuja la letra que se muestra a continuación</p>
-        
+
         <div class="letter-to-draw">
             <img id="greekLetterImage" class="greek-letter-image" src="" alt="Letra griega">
         </div>
@@ -26,97 +43,111 @@
         </div>
 
         <div class="controls">
-            <button class="btn btn-primary" id="saveBtn">Enviar</button>
+            <button class="btn btn-primary" id="saveBtn">
+                Enviar
+                <div class="loading-spinner" id="saveSpinner"></div> </button>
             <button class="btn btn-secondary" id="clearTrainingBtn">Limpiar</button>
         </div>
-    </main>
+        <p id="statusMessage" style="margin-top: 10px; text-align: center;"></p> </main>
 
     <script>
         const canvas = document.getElementById('trainingCanvas');
         const ctx = canvas.getContext('2d');
         const clearBtn = document.getElementById('clearTrainingBtn');
         const saveBtn = document.getElementById('saveBtn');
+        const greekLetterImage = document.getElementById('greekLetterImage'); // Get reference
+        const saveSpinner = document.getElementById('saveSpinner'); // Spinner reference
+        const statusMessage = document.getElementById('statusMessage'); // Status message reference
+
         let isDrawing = false;
         let lastX = 0;
         let lastY = 0;
 
-        // Array con las letras griegas disponibles
         const greekLetters = ['alpha', 'epsilon', 'kappa', 'nu', 'rho', 'upsilon'];
+        let currentLetterToDraw = ''; // Variable to store the current letter
 
-        // Función para obtener una letra griega aleatoria
         function getRandomGreekLetter() {
             const randomIndex = Math.floor(Math.random() * greekLetters.length);
             return greekLetters[randomIndex];
         }
 
-        // Función para mostrar una letra griega aleatoria
         function showRandomGreekLetter() {
-            const randomLetter = getRandomGreekLetter();
-            greekLetterImage.src = `/static/${randomLetter}.png`;
-            greekLetterImage.alt = `Letra griega ${randomLetter}`;
-            console.log(`Mostrando letra: ${randomLetter}`);
+            currentLetterToDraw = getRandomGreekLetter(); // Store the current letter
+            greekLetterImage.src = `/static/${currentLetterToDraw}.png`;
+            greekLetterImage.alt = `Letra griega ${currentLetterToDraw}`; // Alt text for accessibility
+            console.log(`Mostrando letra: ${currentLetterToDraw}`);
+            statusMessage.textContent = ''; // Clear status on new letter
+        }
+        
+        // Initialize canvas with a white background
+        function initializeCanvas() {
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 20; // Ensure consistent line width with prediction
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
         }
 
-        // Mostrar una letra griega al cargar la página
+
         showRandomGreekLetter();
+        initializeCanvas(); // Initialize canvas on load
 
-        // Ajustar el tamaño del canvas al contenedor
-        function resizeCanvas() {
-            const container = canvas.parentElement;
-            const containerWidth = container.clientWidth;
-            const containerHeight = container.clientHeight;
-            const size = Math.min(containerWidth, containerHeight) - 20; // 20px de padding
-            
-            canvas.style.width = `${size}px`;
-            canvas.style.height = `${size}px`;
-        }
 
-        // Llamar a resizeCanvas cuando se carga la página y cuando cambia el tamaño de la ventana
-        window.addEventListener('load', resizeCanvas);
-        window.addEventListener('resize', resizeCanvas);
-
-        // Configuración del canvas
-        ctx.strokeStyle = '#000';
-        ctx.lineWidth = 20;
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
+        // No need for resizeCanvas here as width/height are fixed in HTML
+        // If you want responsive canvas drawing surface, it's more complex
+        // to map display size to drawing buffer size.
 
         // Eventos del mouse
         canvas.addEventListener('mousedown', startDrawing);
         canvas.addEventListener('mousemove', draw);
         canvas.addEventListener('mouseup', stopDrawing);
-        canvas.addEventListener('mouseout', stopDrawing);
+        canvas.addEventListener('mouseout', stopDrawing); // Stop if mouse leaves canvas
 
         // Eventos táctiles
-        canvas.addEventListener('touchstart', handleTouch);
-        canvas.addEventListener('touchmove', handleTouch);
+        canvas.addEventListener('touchstart', handleTouch, { passive: false });
+        canvas.addEventListener('touchmove', handleTouch, { passive: false });
         canvas.addEventListener('touchend', stopDrawing);
+        canvas.addEventListener('touchcancel', stopDrawing); // Stop if touch is cancelled
+
 
         function startDrawing(e) {
             isDrawing = true;
             [lastX, lastY] = getCoordinates(e);
+             // Prevent default for touch events to avoid scrolling page
+            if (e.type.startsWith('touch')) e.preventDefault();
         }
 
         function draw(e) {
             if (!isDrawing) return;
+            if (e.type.startsWith('touch')) e.preventDefault();
+
             const [currentX, currentY] = getCoordinates(e);
-            
+
             ctx.beginPath();
             ctx.moveTo(lastX, lastY);
             ctx.lineTo(currentX, currentY);
             ctx.stroke();
-            
+
             [lastX, lastY] = [currentX, currentY];
         }
 
         function stopDrawing() {
+            if (!isDrawing) return;
             isDrawing = false;
+            ctx.beginPath(); // Reset path for next stroke
         }
 
         function handleTouch(e) {
-            e.preventDefault();
+            // e.preventDefault(); // Already handled in start/draw if needed
             const touch = e.touches[0];
-            const mouseEvent = new MouseEvent(e.type === 'touchstart' ? 'mousedown' : 'mousemove', {
+            // Simulate mouse event based on touch type
+            let eventType;
+            if (e.type === 'touchstart') eventType = 'mousedown';
+            else if (e.type === 'touchmove') eventType = 'mousemove';
+            else return; // Should not happen for touchend/cancel here
+
+            const mouseEvent = new MouseEvent(eventType, {
                 clientX: touch.clientX,
                 clientY: touch.clientY
             });
@@ -125,25 +156,99 @@
 
         function getCoordinates(e) {
             const rect = canvas.getBoundingClientRect();
+            let clientX, clientY;
+
+            if (e.touches && e.touches.length > 0) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            } else {
+                clientX = e.clientX;
+                clientY = e.clientY;
+            }
+            // Canvas has fixed internal resolution (280x280)
+            // but its display size might be different due to CSS or parent constraints.
+            // We need to scale mouse coordinates relative to the canvas's actual size on the page.
             const scaleX = canvas.width / rect.width;
             const scaleY = canvas.height / rect.height;
-            
+
             return [
-                (e.clientX - rect.left) * scaleX,
-                (e.clientY - rect.top) * scaleY
+                (clientX - rect.left) * scaleX,
+                (clientY - rect.top) * scaleY
             ];
         }
 
         clearBtn.addEventListener('click', () => {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // ctx.clearRect(0, 0, canvas.width, canvas.height); // This makes it transparent
+            initializeCanvas(); // Re-fill with white and reset stroke settings
+            statusMessage.textContent = '';
         });
 
         saveBtn.addEventListener('click', async () => {
-            const imageData = canvas.toDataURL('image/png');
-            console.log('Imagen guardada');
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            showRandomGreekLetter();
+            const imageDataUrl = canvas.toDataURL('image/png'); // Get image as PNG Data URL
+
+            // Disable buttons and show spinner
+            saveBtn.disabled = true;
+            clearBtn.disabled = true;
+            saveSpinner.style.display = 'inline-block';
+            statusMessage.textContent = 'Enviando...';
+
+            try {
+                const response = await fetch('/save_training_image', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        image_data_url: imageDataUrl,
+                        letter: currentLetterToDraw // Send the current letter
+                    }),
+                });
+
+                const result = await response.json(); // Always try to parse JSON
+
+                if (!response.ok) {
+                    // If server returns an error status, use message from JSON or generic
+                    throw new Error(result.error || `Error del servidor: ${response.status}`);
+                }
+
+                console.log('Respuesta del servidor:', result);
+                statusMessage.textContent = result.message || '¡Imagen guardada!';
+                statusMessage.style.color = 'green';
+
+                // Clear canvas and show a new letter for the next training sample
+                initializeCanvas();
+                showRandomGreekLetter();
+
+            } catch (error) {
+                console.error('Error al guardar la imagen:', error);
+                statusMessage.textContent = `Error: ${error.message}`;
+                statusMessage.style.color = 'red';
+            } finally {
+                // Re-enable buttons and hide spinner
+                saveBtn.disabled = false;
+                clearBtn.disabled = false;
+                saveSpinner.style.display = 'none';
+            }
         });
+
+        // Fix for canvas resizing if its parent is flexible (from your original code)
+        // However, your canvas has fixed width/height attributes (280x280)
+        // If you style its width/height with CSS to be responsive, then this resize logic becomes important
+        // to correctly scale mouse coordinates. For now, with fixed attributes, this primarily affects display scaling.
+        function resizeCanvasDisplay() {
+            const container = canvas.parentElement;
+            // Example: make canvas display adapt to container width, maintaining aspect ratio
+            const newDisplayWidth = container.clientWidth * 0.9; // Use 90% of container width
+            canvas.style.width = `${newDisplayWidth}px`;
+            canvas.style.height = `${newDisplayWidth}px`; // Maintain aspect ratio (assuming square canvas)
+        }
+
+        window.addEventListener('load', () => {
+            initializeCanvas(); // Ensure canvas is white on load
+            showRandomGreekLetter(); // Show initial letter
+            // resizeCanvasDisplay(); // Call if you want responsive display size
+        });
+        // window.addEventListener('resize', resizeCanvasDisplay); // Call if you want responsive display size
     </script>
 </body>
-</html> 
+</html>
