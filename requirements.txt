@@ -3,5 +3,5 @@ Pillow>=10.0.0
 numpy>=1.21.0,<2.0.0
 tensorflow-cpu>=2.8.0,<3.0.0
 gunicorn>=20.1.0
-opencv-python>=4.5.0
+opencv-python
 google-cloud-storage
