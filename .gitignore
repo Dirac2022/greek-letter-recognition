@@ -13,10 +13,6 @@ __pycache__/
 *.tmp
 *.swp
 
-# Modelos
-models/*.h5
-models/*.npy
-models/*.keras
 
 # Archivos generados por el sistema
 .DS_Store
