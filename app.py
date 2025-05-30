@@ -48,7 +48,7 @@ else:
         print(f"⚠️ ADVERTENCIA: No se pudo inicializar el cliente de GCS usando GOOGLE_APPLICATION_CREDENTIALS (local). Error: {e}")
 
 # Lista de letras según los índices que predice el modelo
-classes = ['alpha', 'epsilon', 'kappa', 'nu', 'rho', 'upsilon']
+classes = ['alpha', 'epsilon', 'kappa', 'nu', 'rho', 'upsilon','gamma','beta','theta']
 
 # Carga del modelo .h5
 try:
