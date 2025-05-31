@@ -63,12 +63,37 @@
         let lastX = 0;
         let lastY = 0;
 
-        const greekLetters = ['alpha', 'epsilon', 'kappa', 'nu', 'rho', 'upsilon','beta','theta','gamma'];
-        let currentLetterToDraw = ''; // Variable to store the current letter
+        // const greekLetters = ['alpha', 'epsilon', 'kappa', 'nu', 'rho', 'upsilon','beta','theta','gamma'];
+        // let currentLetterToDraw = ''; // Variable to store the current letter
+
+        // function getRandomGreekLetter() {
+        //     const randomIndex = Math.floor(Math.random() * greekLetters.length);
+        //     return greekLetters[randomIndex];
+        // }
+
+        const greekLetters = [
+            { letter: 'alpha', weight: 1 },
+            { letter: 'epsilon', weight: 1 },
+            { letter: 'kappa', weight: 1 },
+            { letter: 'nu', weight: 1 },
+            { letter: 'rho', weight: 1 },
+            { letter: 'upsilon', weight: 1 },
+            { letter: 'beta', weight: 3 },    // ~20%
+            { letter: 'theta', weight: 3 },   // ~20%
+            { letter: 'gamma', weight: 3 }    // ~20%
+        ];
 
         function getRandomGreekLetter() {
-            const randomIndex = Math.floor(Math.random() * greekLetters.length);
-            return greekLetters[randomIndex];
+            const totalWeight = greekLetters.reduce((sum, item) => sum + item.weight, 0);
+            const random = Math.random() * totalWeight;
+            let weightSum = 0;
+            for (const item of greekLetters) {
+                weightSum += item.weight;
+                if (random <= weightSum) {
+                    return item.letter;
+                }
+            }
+            return greekLetters[greekLetters.length - 1].letter;
         }
 
         function showRandomGreekLetter() {
