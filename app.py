@@ -52,7 +52,7 @@ classes = ['alpha', 'epsilon', 'kappa', 'nu', 'rho', 'upsilon','gamma','beta','t
 
 # Carga del modelo .h5
 try:
-    model = tf.keras.models.load_model('models/modelo_nuevo_g.h5')
+    model = tf.keras.models.load_model('models/best_letter_classifier.h5')
     print("✅ Modelo cargado exitosamente.")
 except Exception as e:
     print(f"⚠️ ADVERTENCIA: No se pudo cargar el modelo. Error: {e}")
